@@ -1,0 +1,2 @@
+# sequelize-project
+egg
