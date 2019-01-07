@@ -6,6 +6,12 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment');
 module.exports = app => {
   return class LoginController extends app.Controller {
+    /**
+     * @description
+     * @param {String} username 用户名
+     * @param {String} password 密码
+     * @param {Number} remember 自动登录
+     */
     async create(ctx) {
 
       const { username, password, remember } = ctx.request.body;

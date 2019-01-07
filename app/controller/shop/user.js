@@ -19,6 +19,9 @@ class UserController extends Controller {
     const Users = ctx.model.User;
     const user = await Users.findAndCountAll({
       ...query,
+      include: [
+        { model: ctx.model.UserGroup, attributes: [ 'id', 'title' ], required: true },
+      ],
     });
     if (!user) {
       ctx.helper.error(ctx, 200, '查询错误');
@@ -61,13 +64,31 @@ class UserController extends Controller {
   async update() {
     const ctx = this.ctx;
     const id = toInt(ctx.params.id);
-    const User = await ctx.model.User.findById(id);
+    const { phone, username, email, ...rest } = ctx.request.body;
+    const Users = ctx.model.User;
+    await Users.sync();
+    const User = await Users.findById(id);
     if (!User) {
       ctx.helper.error(ctx, 200, '当前数据不存在');
       return;
     }
-    const { abbreviation, title, description } = ctx.request.body;
-    await User.update({ abbreviation, title, description });
+    const user = await Users.findAll({
+      where: {
+        id: {
+          $ne: id,
+        },
+        $or: [
+          { phone },
+          { username },
+          { email },
+        ],
+      },
+    });
+    if (user && user.length > 0) {
+      ctx.helper.error(ctx, 200, '数据重复');
+      return;
+    }
+    await User.update({ phone, username, email, ...rest });
     ctx.helper.success(ctx, User, '成功');
   }
 

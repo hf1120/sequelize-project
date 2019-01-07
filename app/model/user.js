@@ -7,6 +7,8 @@
 const bcrypt = require('bcryptjs');
 module.exports = app => {
   const User = app.model.import('../domain/user');
+  const UserGroup = app.model.import('../domain/userGroup');
+  User.belongsTo(UserGroup, { foreignKey: 'group_id' });
   User.add = async function(username, pass, nickname) {
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
