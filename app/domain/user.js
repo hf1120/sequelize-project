@@ -33,12 +33,12 @@ module.exports = function(sequelize, DataTypes) {
     },
     email: {
       type: DataTypes.STRING(100),
-      allowNull: true,
+      allowNull: false,
       unique: true,
     },
     phone: {
       type: DataTypes.STRING(100),
-      allowNull: true,
+      allowNull: false,
       unique: true,
     },
     qq: {

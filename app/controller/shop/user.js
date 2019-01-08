@@ -1,5 +1,6 @@
 'use strict';
 
+/* 用户成员功能 */
 const Controller = require('egg').Controller;
 
 function toInt(str) {
@@ -32,9 +33,9 @@ class UserController extends Controller {
   }
 
   // 详情
-  async show() {
-    const ctx = this.ctx;
-    ctx.body = await ctx.model.User.findById(toInt(ctx.params.id));
+  async show(ctx) {
+    const data = await ctx.model.User.findById(toInt(ctx.params.id));
+    ctx.helper.success(ctx, data, '成功');
   }
 
   // 添加
@@ -43,21 +44,52 @@ class UserController extends Controller {
     const { phone, username, email, ...rest } = ctx.request.body;
     const Users = ctx.model.User;
     await Users.sync();
-    const user = await Users.findAll({
-      where: {
-        $or: [
-          { phone },
-          { username },
-          { email },
-        ],
-      },
-    });
-    if (user && user.length > 0) {
-      ctx.helper.error(ctx, 200, '数据重复');
-      return;
+    try {
+      const User = await ctx.model.User.create({ phone, username, email, ...rest, userType: 'C' });
+      ctx.helper.success(ctx, User, '成功');
+    } catch (error) {
+      const res = await Users.findOne({
+        where: {
+          $or: [
+            { phone },
+            { username },
+            { email },
+          ],
+        },
+      });
+      if (res) {
+        const { dataValues } = res;
+        let ele = null;
+        const dataValueKeys = Object.keys(dataValues);
+        for (let i = 0; i < dataValueKeys.length; i++) {
+          const item = dataValueKeys[i];
+          switch (item) {
+            case 'username':
+              if (dataValues[item] === username) {
+                ele = '用户名已存在';
+              }
+              break;
+            case 'phone':
+              if (dataValues[item] === phone) {
+                ele = '手机号已存在';
+              }
+              break;
+            case 'email':
+              if (dataValues[item] === email) {
+                ele = '邮箱已存在';
+              }
+              break;
+            default:
+          }
+          if (ele) {
+            break;
+          }
+        }
+        ctx.helper.error(ctx, 200, ele);
+        return;
+      }
+      ctx.helper.error(ctx, 200, '未知错误');
     }
-    const User = await ctx.model.User.create({ phone, username, email, ...rest, userType: 'C' });
-    ctx.helper.success(ctx, User, '成功');
   }
 
   // 更新
@@ -72,24 +104,52 @@ class UserController extends Controller {
       ctx.helper.error(ctx, 200, '当前数据不存在');
       return;
     }
-    const user = await Users.findAll({
-      where: {
-        id: {
-          $ne: id,
+    try {
+      await User.update({ phone, username, email, ...rest });
+      ctx.helper.success(ctx, User, '成功');
+    } catch (error) {
+      const res = await Users.findOne({
+        where: {
+          $or: [
+            { phone },
+            { username },
+            { email },
+          ],
         },
-        $or: [
-          { phone },
-          { username },
-          { email },
-        ],
-      },
-    });
-    if (user && user.length > 0) {
-      ctx.helper.error(ctx, 200, '数据重复');
-      return;
+      });
+      if (res) {
+        const { dataValues } = res;
+        let ele = null;
+        const dataValueKeys = Object.keys(dataValues);
+        for (let i = 0; i < dataValueKeys.length; i++) {
+          const item = dataValueKeys[i];
+          switch (item) {
+            case 'username':
+              if (dataValues[item] === username) {
+                ele = '用户名已存在';
+              }
+              break;
+            case 'phone':
+              if (dataValues[item] === phone) {
+                ele = '手机号已存在';
+              }
+              break;
+            case 'email':
+              if (dataValues[item] === email) {
+                ele = '邮箱已存在';
+              }
+              break;
+            default:
+          }
+          if (ele) {
+            break;
+          }
+        }
+        ctx.helper.error(ctx, 200, ele);
+        return;
+      }
+      ctx.helper.error(ctx, 200, '未知错误');
     }
-    await User.update({ phone, username, email, ...rest });
-    ctx.helper.success(ctx, User, '成功');
   }
 
   // 删除

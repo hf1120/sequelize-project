@@ -1,5 +1,6 @@
 'use strict';
 
+/* 用户组功能 */
 const Controller = require('egg').Controller;
 
 function toInt(str) {
