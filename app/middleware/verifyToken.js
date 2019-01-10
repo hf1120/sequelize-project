@@ -9,9 +9,10 @@ module.exports = () => {
       ctx.helper.error(ctx, 401, verifyResult.message);
       return false;
     }
-    const userId = 1; // 去查数据库的用户id
-    if (userId !== verifyResult.message.id) {
-      ctx.helper.error(ctx, 401, '用户 ID 与 Token 不一致');
+    const userLogin = await ctx.model.UserLogin.findOne({ where: { uid: verifyResult.message.uid } });
+    const { loginLogType, token: tokenTmp } = userLogin;
+    if (loginLogType !== 'L' || tokenTmp !== token.substr(token.length - 10)) {
+      ctx.helper.error(ctx, 401, 'token已过期');
       return false;
     }
     await next();

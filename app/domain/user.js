@@ -29,17 +29,17 @@ module.exports = function(sequelize, DataTypes) {
     status: { // 0：冻结 1：正常
       type: DataTypes.CHAR(1),
       allowNull: false,
-      defaultValue: '0',
+      defaultValue: '1',
     },
     email: {
       type: DataTypes.STRING(100),
-      allowNull: false,
-      unique: true,
+      allowNull: true,
+      fields: [ 'email' ],
     },
     phone: {
       type: DataTypes.STRING(100),
-      allowNull: false,
-      unique: true,
+      allowNull: true,
+      fields: [ 'phone' ],
     },
     qq: {
       type: DataTypes.STRING(30),
@@ -92,10 +92,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: true,
     },
-    lastLogin_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -104,6 +100,7 @@ module.exports = function(sequelize, DataTypes) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
   },
   {

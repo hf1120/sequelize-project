@@ -10,6 +10,8 @@ module.exports = function(sequelize, DataTypes) {
     uid: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
+      unique: true,
+      fields: [ 'uid' ],
     },
     password: {
       type: DataTypes.STRING(100),
@@ -19,10 +21,29 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    status: {
+    loginLogType: { // L：登录 O：登出
+      type: DataTypes.CHAR(1),
+      allowNull: false,
+      defaultValue: 'O',
+    },
+    status: { // 0：冻结 1：正常
       type: DataTypes.CHAR(1),
       allowNull: false,
       defaultValue: '0',
+    },
+    token: { // 截取token后10位
+      type: DataTypes.STRING(30),
+      allowNull: true,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
   },
   {

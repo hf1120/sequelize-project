@@ -3,7 +3,7 @@
 // 获取 Token
 exports.getAccessToken = ctx => {
   const bearerToken = ctx.request.header.authorization;
-  return bearerToken && bearerToken.replace('Bearer ', '');
+  return bearerToken && bearerToken.replace('Bearer  ', ''); // 2个空格
 };
 
 // 处理成功响应

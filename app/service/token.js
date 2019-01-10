@@ -6,7 +6,7 @@ class Token extends Service {
   /* 生成 Token */
   async createToken(data) {
     return this.app.jwt.sign(data, this.app.config.jwt.secret, {
-      expiresIn: '12h',
+      expiresIn: data.expires_in,
     });
   }
 
@@ -28,7 +28,6 @@ class Token extends Service {
         } else {
           result.verify = true;
           result.message = decoded;
-          console.log(decoded, 22);
         }
         resolve(result);
       });
