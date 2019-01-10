@@ -1,27 +1,39 @@
 'use strict';
 
-/* 用户组 */
+/* 分类 */
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('user_group', {
+  return sequelize.define('category', {
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
-    abbreviation: { // 标识
-      type: DataTypes.STRING(30),
-      allowNull: false,
-      unique: true,
+    p_id: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true,
     },
     title: {
       type: DataTypes.STRING(30),
       allowNull: false,
       unique: true,
     },
+    pic: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    thumb: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     description: {
       type: DataTypes.STRING(255),
       allowNull: true,
+    },
+    sort: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true,
+      defaultValue: '1',
     },
     created_at: {
       type: DataTypes.DATE,
@@ -35,6 +47,6 @@ module.exports = function(sequelize, DataTypes) {
     },
   },
   {
-    tableName: 'user_group',
+    tableName: 'category',
   });
 };

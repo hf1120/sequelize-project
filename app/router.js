@@ -15,6 +15,15 @@ module.exports = app => {
   // 用户列表
   app.resources('user', '/users', verifyToken, app.controller.shop.user);
   app.resources('userGroup', '/usergroups', verifyToken, app.controller.shop.userGroup);
+
+  // 分类
+  app.resources('category', '/categorys', verifyToken, app.controller.shop.category);
+  app.resources('categoryMember', '/category/:id/members', verifyToken, app.controller.shop.categoryMember);
+  app.resources('categoryMember', '/category/members', verifyToken, app.controller.shop.categoryMember);
+
+  // 商品
+  app.resources('goods', '/goods', verifyToken, app.controller.shop.goods);
+
   // router.resources('users', '/users', app.jwt, controller.users);
   // router.resources('users', '/haha', controller.users);
 };
