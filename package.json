@@ -4,12 +4,14 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "await-stream-ready": "^1.0.1",
     "bcryptjs": "^2.4.3",
     "egg": "^2.2.1",
     "egg-cors": "^2.1.2",
     "egg-jwt": "^3.1.4",
     "egg-scripts": "^2.5.0",
     "egg-sequelize": "^4.2.0",
+    "md5": "^2.2.1",
     "mysql2": "^1.6.4",
     "node-jsencrypt": "^1.0.0"
   },

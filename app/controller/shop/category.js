@@ -9,6 +9,34 @@ function toInt(str) {
   return parseInt(str, 10) || 0;
 }
 
+
+function parseList(list) {
+  // 创建一个对象命名为map
+  const map = {};
+  // 通过遍历把list中的元素放到map对象中
+  list.forEach(item => {
+    if (!map[item.id]) {
+      // 核心步骤1：map中的'item.id'属性指向list数组中的对象元素
+      map[item.id] = item;
+    }
+  });
+  // 再次遍历为了对map属性所指的对象进行处理
+  list.forEach(item => {
+    // 过滤父级id不是null的元素
+    if (item.p_id !== null) {
+      // map[item.p_id]为该元素的父级元素
+      map[item.p_id].dataValues.children ? map[item.p_id].dataValues.children.push(item) : map[item.p_id].dataValues.children = [ item ];
+    }
+  });
+  // 过滤后仅剩下根节点
+  return list.filter(item => {
+    if (item.p_id === null) {
+      return item;
+    }
+    return null;
+  });
+}
+
 class CategoryController extends Controller {
   // 列表
   async index() {
@@ -29,6 +57,14 @@ class CategoryController extends Controller {
       return;
     }
     ctx.helper.success(ctx, { list: res.rows, pagination: { page: pageTmp, limit: limitTmp, total: res.count } }, '成功');
+  }
+
+  // 获取全部
+  async all() {
+    const ctx = this.ctx;
+    const data = await ctx.model.Category.findAll();
+    const list = parseList(data);
+    ctx.helper.success(ctx, list, '成功');
   }
 
   // 详情

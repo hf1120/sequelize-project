@@ -20,6 +20,9 @@ class GoodsController extends Controller {
     const Goodss = ctx.model.Goods;
     const goods = await Goodss.findAndCountAll({
       ...query,
+      include: [
+        { model: ctx.model.Category, attributes: [ 'id', 'title' ], required: true },
+      ],
     });
     if (!goods) {
       ctx.helper.error(ctx, 200, '查询错误');
@@ -32,28 +35,24 @@ class GoodsController extends Controller {
   // 详情
   async show() {
     const ctx = this.ctx;
-    ctx.body = await ctx.model.Goods.findById(toInt(ctx.params.id));
+    const data = await ctx.model.Goods.findById(toInt(ctx.params.id));
+    ctx.helper.success(ctx, data, '成功');
   }
 
   // 添加
   async create() {
     const ctx = this.ctx;
-    const { abbreviation, title, ...rest } = ctx.request.body;
+    const { title, ...rest } = ctx.request.body;
     const Goodss = ctx.model.Goods;
     await Goodss.sync();
-    const goods = await Goodss.findAll({
-      where: {
-        $or: [
-          { abbreviation },
-          { title },
-        ],
-      },
+    const goods = await Goodss.findOne({
+      where: { title },
     });
     if (goods && goods.length > 0) {
-      ctx.helper.error(ctx, 200, '标识或名称已存在');
+      ctx.helper.error(ctx, 200, '名称已存在');
       return;
     }
-    const Goods = await ctx.model.Goods.create({ abbreviation, title, ...rest });
+    const Goods = await ctx.model.Goods.create({ title, ...rest });
     ctx.helper.success(ctx, Goods, '成功');
   }
 
@@ -61,14 +60,43 @@ class GoodsController extends Controller {
   async update() {
     const ctx = this.ctx;
     const id = toInt(ctx.params.id);
-    const Goods = await ctx.model.Goods.findById(id);
-    if (!Goods) {
+    const { title, ...rest } = ctx.request.body;
+    const Goods = ctx.model.Goods;
+    const goods = await Goods.findById(id);
+    if (!goods) {
       ctx.helper.error(ctx, 200, '当前数据不存在');
       return;
     }
-    const { abbreviation, title, description } = ctx.request.body;
-    await Goods.update({ abbreviation, title, description });
-    ctx.helper.success(ctx, Goods, '成功');
+    try {
+      await goods.update({ title, ...rest });
+      ctx.helper.success(ctx, Goods, '编辑成功');
+    } catch (error) {
+      const res = await Goods.findOne({
+        where: { title, id: { $ne: id } },
+      });
+      if (res) {
+        const { dataValues } = res;
+        let ele = null;
+        const dataValueKeys = Object.keys(dataValues);
+        for (let i = 0; i < dataValueKeys.length; i++) {
+          const item = dataValueKeys[i];
+          switch (item) {
+            case 'title':
+              if (dataValues[item] === title) {
+                ele = '名称已存在';
+              }
+              break;
+            default:
+          }
+          if (ele) {
+            break;
+          }
+        }
+        ctx.helper.error(ctx, 200, ele);
+        return;
+      }
+      ctx.helper.error(ctx, 200, '未知错误');
+    }
   }
 
   // 删除

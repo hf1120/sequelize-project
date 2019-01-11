@@ -22,6 +22,8 @@ module.exports = appInfo => {
     '-----END RSA PRIVATE KEY-----',
   };
 
+  config.baseUrl = 'http://127.0.0.1:7001';
+
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1545701919363_8966';
 
