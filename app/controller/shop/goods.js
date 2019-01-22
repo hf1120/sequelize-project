@@ -111,6 +111,29 @@ class GoodsController extends Controller {
     await Goods.destroy();
     ctx.helper.success(ctx, Goods, '成功');
   }
+
+  // 推荐
+  async channel() {
+    const ctx = this.ctx;
+    const { limit = 10, page = 1 } = ctx.query;
+    const limitTmp = toInt(limit);
+    const pageTmp = toInt(page);
+    const query = { limit: limitTmp, offset: (pageTmp - 1) * limitTmp };
+    const Goodss = ctx.model.Goods;
+    const goods = await Goodss.findAndCountAll({
+      ...query,
+      where: { channel: '1' },
+      order: [[ 'sort', 'ASC' ]],
+      include: [
+        { model: ctx.model.Category, attributes: [ 'id', 'title' ], required: true },
+      ],
+    });
+    if (!goods) {
+      ctx.helper.error(ctx, 200, '查询错误');
+      return;
+    }
+    ctx.helper.success(ctx, { list: goods.rows, pagination: { page: pageTmp, limit: limitTmp, total: goods.count } }, '成功');
+  }
 }
 
 module.exports = GoodsController;

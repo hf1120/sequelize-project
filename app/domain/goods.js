@@ -35,6 +35,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: '1',
     },
+    channel: { // 0：不推荐 1：推荐
+      type: DataTypes.CHAR(1),
+      allowNull: false,
+      defaultValue: '0',
+    },
     anum: {
       type: DataTypes.INTEGER(11),
       allowNull: true,

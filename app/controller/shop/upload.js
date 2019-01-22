@@ -37,23 +37,44 @@ class UploadController extends Controller {
       const filename = md5(stream.filename) + path
         .extname(stream.filename)
         .toLocaleLowerCase();
-      // 文件生成绝对路径
-      // 当然这里这样市不行的，因为你还要判断一下是否存在文件路径
 
-      const target = path.join(this.config.baseDir, 'app/public/uploads', filename);
-      // 生成一个文件写入 文件流
-      const writeStream = fs.createWriteStream(target);
-      try {
-        // 异步把文件流 写入
-        await awaitWriteStream(stream.pipe(writeStream));
-      } catch (err) {
-        // 如果出现错误，关闭管道
-        await sendToWormhole(stream);
-        throw err;
-      }
-      const avatar = this.config.baseUrl + '/public/uploads/' + filename;
-      await User.update({ avatar });
-      ctx.helper.success(ctx, avatar, '成功');
+      // 文件生成绝对路径
+      await new Promise((resolve, reject) => {
+        // 判断文件夹是否存在
+        fs.readdir('app/public', (err, res) => {
+          if (err) {
+            reject({ code: 10, msg: '失败' });
+            return;
+          }
+          if (res.indexOf('uploads') < 0) {
+            fs.mkdir('app/public/uploads', function(err) {
+              if (err) {
+                reject({ code: 10, msg: '失败' });
+                return false;
+              }
+            });
+          }
+          resolve({ code: 0, msg: '成功' });
+        });
+      }).then(({ code }) => {
+        if (code === 0) {
+          const target = path.join(this.config.baseDir, 'app/public/uploads', filename);
+          // 生成一个文件写入 文件流
+          const writeStream = fs.createWriteStream(target);
+          try {
+            // 异步把文件流 写入
+            awaitWriteStream(stream.pipe(writeStream));
+          } catch (err) {
+            // 如果出现错误，关闭管道
+            sendToWormhole(stream);
+            throw err;
+          }
+          const avatar = this.config.baseUrl + '/public/uploads/' + filename;
+          User.update({ avatar });
+          ctx.helper.success(ctx, avatar, '成功');
+        }
+        ctx.helper.error(ctx, 200, '未知错误');
+      });
     } catch (error) {
       ctx.helper.error(ctx, 200, '未知错误');
     }

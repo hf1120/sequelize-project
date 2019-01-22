@@ -12,8 +12,9 @@ module.exports = app => {
   app.resources('login', '/login', app.controller.shop.login);
   router.post('/logout', app.controller.shop.account.logout);
 
-  // 上传头像
+  // 上传
   router.post('/users/:id/avatar', app.controller.shop.upload.index);
+  app.post('/upload', verifyToken, app.controller.shop.uploadComment.upload);
 
   // 用户列表
   app.resources('user', '/users', verifyToken, app.controller.shop.user);
@@ -26,8 +27,12 @@ module.exports = app => {
   // 分类
   app.get('/categorys/all', verifyToken, app.controller.shop.category.all);
   app.resources('category', '/categorys', verifyToken, app.controller.shop.category);
+  app.resources('categoryMember', '/category/:id/members', verifyToken, app.controller.shop.categoryMember);
+  app.resources('categoryMember', '/category/members', verifyToken, app.controller.shop.categoryMember);
+
 
   // 商品
+  app.get('goods', '/goods/channel', verifyToken, app.controller.shop.goods.channel);
   app.resources('goods', '/goods', verifyToken, app.controller.shop.goods);
 
   // 跑马灯
